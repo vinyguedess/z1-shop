@@ -1,4 +1,3 @@
-import { UserAlreadyExists } from '#exceptions/users_exceptions'
 import User from '#models/user'
 import UsersRepository from '#repositories/users_repository'
 import UsersService from '#services/users_service'
@@ -61,5 +60,61 @@ test('signUp error if user already exists', async ({ assert }) => {
   sinon.assert.calledWith(stubGetByEmail, 'hello@email.com')
   assert.isTrue(stubCreate.notCalled)
 
+  sinon.restore()
+})
+
+test('signIn', async ({ assert }) => {
+  hash.fake()
+
+  const stubGetByEmail = sinon.stub(UsersRepository.prototype, 'getByEmail')
+  stubGetByEmail.resolves(new User().fill({ password: 'myp4ssw0rd' }))
+
+  const usersService = await app.container.make(UsersService)
+  const response = await usersService.signIn({
+    email: 'my@email.com',
+    password: 'myp4ssw0rd',
+  })
+
+  assert.instanceOf(response, User)
+  sinon.assert.calledWith(stubGetByEmail, 'my@email.com')
+
+  hash.restore()
+  sinon.restore()
+})
+
+test('signIn error if user does not exist', async ({ assert }) => {
+  const stubGetByEmail = sinon.stub(UsersRepository.prototype, 'getByEmail')
+  stubGetByEmail.resolves(null)
+
+  const usersService = await app.container.make(UsersService)
+  assert.rejects(() =>
+    usersService.signIn({
+      email: 'my@email.com',
+      password: 'myp4ssw0rd',
+    })
+  )
+
+  sinon.assert.calledWith(stubGetByEmail, 'my@email.com')
+
+  sinon.restore()
+})
+
+test('signIn error if invalid password', async ({ assert }) => {
+  hash.fake()
+
+  const stubGetByEmail = sinon.stub(UsersRepository.prototype, 'getByEmail')
+  stubGetByEmail.resolves(new User().fill({ password: 'other-myp4ssw0rd' }))
+
+  const usersService = await app.container.make(UsersService)
+  assert.rejects(() =>
+    usersService.signIn({
+      email: 'my@email.com',
+      password: 'myp4ssw0rd',
+    })
+  )
+
+  sinon.assert.calledWith(stubGetByEmail, 'my@email.com')
+
+  hash.restore()
   sinon.restore()
 })
