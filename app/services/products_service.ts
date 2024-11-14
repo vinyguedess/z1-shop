@@ -1,12 +1,13 @@
 import Product from '#models/product'
+import ProductsRepository from '#repositories/products_repository'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class ProductsService {
+  constructor(protected productsRepository: ProductsRepository) {}
+
   async getList(limit: number, page: number): Promise<[Product[], number]> {
-    const query = Product.query()
-
     const offset = (page - 1) * limit
-
-    const countResults = await query.count('id', 'total_results')
-    return [await query.limit(limit).offset(offset), countResults[0].$extras.total_results]
+    return this.productsRepository.getList(limit, offset)
   }
 }
