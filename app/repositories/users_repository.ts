@@ -10,4 +10,8 @@ export default class UsersRepository {
   async getById(userId: number): Promise<User | null> {
     return User.find(userId)
   }
+
+  async getByEmail(email: string): Promise<User | null> {
+    return User.findBy('email', email)
+  }
 }

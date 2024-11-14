@@ -37,3 +37,17 @@ test('getById', async ({ assert }) => {
 
   sinon.restore()
 })
+
+test('getByEmail', async ({ assert }) => {
+  const stubFindBy = sinon.stub(User, 'findBy')
+  stubFindBy.resolves(new User())
+
+  const usersRepository = await app.container.make(UsersRepository)
+  const response = await usersRepository.getByEmail('my@email.com')
+
+  assert.instanceOf(response, User)
+  assert.isTrue(stubFindBy.calledOnce)
+  assert.isTrue(stubFindBy.calledWith('email', 'my@email.com'))
+
+  sinon.restore()
+})
