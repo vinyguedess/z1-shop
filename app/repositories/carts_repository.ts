@@ -5,6 +5,11 @@ export default class CartsRepository {
     return Cart.create(data)
   }
 
+  async update(cart: Cart, data: Record<string, any>): Promise<Cart> {
+    cart.merge(data)
+    return cart.save()
+  }
+
   async getByDeviceId(deviceId: string): Promise<Cart | null> {
     return Cart.findBy('device_id', deviceId)
   }

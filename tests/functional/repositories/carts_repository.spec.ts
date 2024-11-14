@@ -17,6 +17,19 @@ test('create', async ({ assert }) => {
   sinon.restore()
 })
 
+test('update', async ({ assert }) => {
+  const stubSave = sinon.stub(Cart.prototype, 'save')
+  stubSave.resolves(new Cart())
+
+  const cartsRepository = await app.container.make(CartsRepository)
+  const response = await cartsRepository.update(new Cart(), { deviceId: 'new-device-id' })
+
+  assert.instanceOf(response, Cart)
+  sinon.assert.calledOnce(stubSave)
+
+  sinon.restore()
+})
+
 test('getByDeviceId', async ({ assert }) => {
   const stubFindBy = sinon.stub(Cart, 'findBy')
   stubFindBy.resolves(new Cart())
