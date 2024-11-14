@@ -11,7 +11,10 @@ export default class Cart extends BaseModel {
   declare products: HasMany<typeof CartProduct>
 
   @column()
-  declare deviceId: string | null
+  declare userId: number | null
+
+  @column()
+  declare deviceId: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
