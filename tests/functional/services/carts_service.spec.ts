@@ -14,4 +14,33 @@ test('create', async ({ assert }) => {
 
   assert.instanceOf(response, Cart)
   sinon.assert.calledWith(stubCreate, { deviceId: 'device-id-123', userId: null })
+
+  sinon.restore()
+})
+
+test.group('getByDeviceId', () => {
+  test('ok', async ({ assert }) => {
+    const stubGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
+    stubGetByDeviceId.resolves(new Cart())
+
+    const cartsService = await app.container.make(CartsService)
+    const response = await cartsService.getByDeviceId('device-id-123')
+
+    assert.instanceOf(response, Cart)
+    sinon.assert.calledWith(stubGetByDeviceId, 'device-id-123')
+
+    sinon.restore()
+  })
+
+  test('cart not found', async ({ assert }) => {
+    const stubGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
+    stubGetByDeviceId.resolves(null)
+
+    const cartsService = await app.container.make(CartsService)
+
+    assert.rejects(() => cartsService.getByDeviceId('device-id-123'))
+    sinon.assert.calledWith(stubGetByDeviceId, 'device-id-123')
+
+    sinon.restore()
+  })
 })

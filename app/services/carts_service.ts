@@ -1,3 +1,4 @@
+import { CartNotFound } from '#exceptions/carts_exceptions'
 import Cart from '#models/cart'
 import CartsRepository from '#repositories/carts_repository'
 import { inject } from '@adonisjs/core'
@@ -8,5 +9,12 @@ export default class CartsService {
 
   create(deviceId: string, userId: number | null): Promise<Cart> {
     return this.cartsRepository.create({ deviceId, userId })
+  }
+
+  async getByDeviceId(deviceId: string): Promise<Cart | null> {
+    const cart = await this.cartsRepository.getByDeviceId(deviceId)
+    if (!(cart instanceof Cart)) throw new CartNotFound(deviceId)
+
+    return cart
   }
 }
