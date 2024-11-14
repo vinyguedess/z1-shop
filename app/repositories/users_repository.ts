@@ -9,4 +9,8 @@ export default class UsersRepository {
         return User.create(data);
     }
 
+    async getById(userId: number): Promise<User | null> {
+        return User.find(userId);
+    }
+
 }

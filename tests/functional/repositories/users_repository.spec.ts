@@ -23,3 +23,17 @@ test('create', async ({ assert }) => {
 
   sinon.restore()
 })
+
+test('getById', async ({ assert }) => {
+  const stubFind = sinon.stub(User, 'find')
+  stubFind.resolves(new User())
+
+  const usersRepository = await app.container.make(UsersRepository)
+  const response = await usersRepository.getById(1)
+
+  assert.instanceOf(response, User)
+  assert.isTrue(stubFind.calledOnce)
+  assert.isTrue(stubFind.calledWith(1))
+
+  sinon.restore()
+})
