@@ -7,6 +7,13 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class AuthController {
   constructor(protected usersService: UsersService) {}
 
+  /**
+   * @signUp
+   * @tag Auth
+   * @description Allow client to sign up as a user
+   * @requestBody <User>.exclude(id, is_admin, created_at, updated_at).append("password": "password")
+   * @responseBody 200 - {type: string, access_token: string, expires_in: number}
+   */
   async signUp(ctx: HttpContext) {
     try {
       const user = await this.usersService.signUp(ctx.request.all())
@@ -29,6 +36,13 @@ export default class AuthController {
     }
   }
 
+  /**
+   * @signIn
+   * @tag Auth
+   * @description Allow client to sign in as a user
+   * @requestBody <User>.only(email).append("password": "password")
+   * @responseBody 200 - {type: string, access_token: string, expires_in: number}
+   */
   async signIn(ctx: HttpContext) {
     try {
       const user = await this.usersService.signIn(ctx.request.all())
