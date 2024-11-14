@@ -34,6 +34,8 @@ server.use([
  */
 router.use([() => import('@adonisjs/core/bodyparser_middleware')])
 
+router.use([() => import('@adonisjs/auth/initialize_auth_middleware')])
+
 /**
  * Named middleware collection must be explicitly assigned to
  * the routes or the routes group.
