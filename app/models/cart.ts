@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
-import type { HasMany } from '@adonisjs/lucid/types/relations';
+import type { HasMany } from '@adonisjs/lucid/types/relations'
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
-import CartProduct from '#models/cart_product';
+import CartProduct from '#models/cart_product'
 
 export default class Cart extends BaseModel {
   @column({ isPrimary: true })
