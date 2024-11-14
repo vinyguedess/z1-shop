@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 
+router.post('/auth/sign_in', '#controllers/auth_controller.signIn')
 router.post('/auth/sign_up', '#controllers/auth_controller.signUp')
 
 router.get('/products', '#controllers/products_controller.index')
