@@ -7,6 +7,13 @@ import { inject } from '@adonisjs/core'
 export default class ProductsController {
   constructor(protected productService: ProductsService) {}
 
+  /**
+   * @index
+   * @tag Product
+   * @description Fetch a list of products paginated
+   * @responseBody 200 - <Product[]>
+   * @responseHeader 200 - X-Total-Count - Total of items registered - @example(10)
+   */
   async index(ctx: HttpContext) {
     const [results, totalResults] = await this.productService.getList(
       ctx.request.qs().limit || 10,
