@@ -16,6 +16,9 @@ export default class CartProduct extends BaseModel {
   @column()
   declare productId: number
 
+  @column()
+  declare amount: number
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
