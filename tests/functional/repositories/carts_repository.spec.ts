@@ -1,0 +1,18 @@
+import Cart from '#models/cart'
+import CartsRepository from '#repositories/carts_repository'
+import app from '@adonisjs/core/services/app'
+import { test } from '@japa/runner'
+import sinon from 'sinon'
+
+test('create', async ({ assert }) => {
+  const stubCreate = sinon.stub(Cart, 'create')
+  stubCreate.resolves(new Cart())
+
+  const cartsRepository = await app.container.make(CartsRepository)
+  const response = await cartsRepository.create({ deviceId: 'device-id-123' })
+
+  assert.instanceOf(response, Cart)
+  sinon.assert.calledWith(stubCreate, { deviceId: 'device-id-123' })
+
+  sinon.restore()
+})
