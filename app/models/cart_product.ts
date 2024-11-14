@@ -10,6 +10,12 @@ export default class CartProduct extends BaseModel {
   @belongsTo(() => Product)
   declare product: BelongsTo<typeof Product>
 
+  @column()
+  declare cartId: number
+
+  @column()
+  declare productId: number
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
