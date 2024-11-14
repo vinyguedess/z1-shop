@@ -3,6 +3,27 @@ import { ModelQueryBuilder } from '@adonisjs/lucid/orm'
 import { test } from '@japa/runner'
 import sinon, { SinonStubbedInstance } from 'sinon'
 import ProductsRepository from '#repositories/products_repository'
+import app from '@adonisjs/core/services/app'
+
+test('create', async ({ assert }) => {
+  const stubCreate = sinon.stub(Product, 'create')
+  stubCreate.resolves(new Product())
+
+  const productRepository = await app.container.make(ProductsRepository)
+  const response = await productRepository.create({
+    name: 'product-name',
+  })
+
+  assert.instanceOf(response, Product)
+  assert.isTrue(stubCreate.calledOnce)
+  assert.isTrue(
+    stubCreate.calledWith({
+      name: 'product-name',
+    })
+  )
+
+  sinon.restore()
+})
 
 test('getList', async ({ assert }) => {
   const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)

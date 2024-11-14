@@ -1,6 +1,10 @@
 import Product from '#models/product'
 
 export default class ProductsRepository {
+  async create(data: Record<string, any>): Promise<Product> {
+    return Product.create(data)
+  }
+
   async getList(limit: number, offset: number): Promise<[Product[], number]> {
     const query = Product.query()
 
