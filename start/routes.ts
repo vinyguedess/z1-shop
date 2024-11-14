@@ -14,3 +14,5 @@ router.get('/', async () => {
     hello: 'world',
   }
 })
+
+router.get('/products', '#controllers/products_controller.index')
