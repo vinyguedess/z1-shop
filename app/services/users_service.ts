@@ -8,7 +8,10 @@ export default class UsersService {
   constructor(protected usersRepository: UsersRepository) {}
 
   async signUp(data: Record<string, any>): Promise<User> {
-    data.password = await hash.make(data.password)
-    return this.usersRepository.create(data)
+    return this.usersRepository.create({
+      ...data,
+      password: await hash.make(data.password),
+      is_admin: false,
+    })
   }
 }

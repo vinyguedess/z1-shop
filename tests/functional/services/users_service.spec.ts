@@ -27,6 +27,7 @@ test('signUp', async ({ assert }) => {
     last_name: 'My Last',
     email: 'hello@email.com',
     password: 'myz1p4ssw0rd',
+    is_admin: false,
   })
 
   hash.restore()
