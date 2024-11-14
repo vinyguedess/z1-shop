@@ -16,3 +16,14 @@ test('create', async ({ assert }) => {
 
   sinon.restore()
 })
+
+test('getByDeviceId', async ({ assert }) => {
+  const stubFindBy = sinon.stub(Cart, 'findBy')
+  stubFindBy.resolves(new Cart())
+
+  const cartsRepository = await app.container.make(CartsRepository)
+  const response = await cartsRepository.getByDeviceId('device-id-123')
+
+  assert.instanceOf(response, Cart)
+  sinon.assert.calledWith(stubFindBy, 'device_id', 'device-id-123')
+})
