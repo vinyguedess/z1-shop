@@ -29,6 +29,16 @@ export default class CartsRepository {
   }
 
   async removeProductFromCart(cartId: number, productId: number): Promise<void> {
-    await CartProduct.query().where('cart_id', cartId).where('product_id', productId).delete()
+    const cartProduct = await CartProduct.query()
+      .where('cart_id', cartId)
+      .where('product_id', productId)
+      .first()
+    if (!(cartProduct instanceof CartProduct)) return
+
+    if (cartProduct.amount <= 1) return cartProduct.delete()
+
+    cartProduct.amount -= 1
+    await cartProduct.save()
+    return
   }
 }

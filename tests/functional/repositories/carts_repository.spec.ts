@@ -103,20 +103,70 @@ test.group('addProductToCart', () => {
   })
 })
 
-test('removeProductFromCart', async () => {
-  const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
-  stubQueryBuilder.where.returnsThis()
-  stubQueryBuilder.delete.resolves()
+test.group('removeProductFromCart', () => {
+  test('if cart product not found', async () => {
+    const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+    stubQueryBuilder.where.returnsThis()
+    stubQueryBuilder.first.resolves(null)
 
-  const stubCartProduct = sinon.stub(CartProduct)
-  stubCartProduct.query.returns(stubQueryBuilder)
+    const stubQuery = sinon.stub(CartProduct, 'query')
+    stubQuery.returns(stubQueryBuilder)
 
-  const cartsRepository = await app.container.make(CartsRepository)
-  await cartsRepository.removeProductFromCart(1, 2)
+    const cartsRepository = await app.container.make(CartsRepository)
+    await cartsRepository.removeProductFromCart(1, 2)
 
-  sinon.assert.calledOnce(stubCartProduct.query)
-  sinon.assert.calledWith(stubQueryBuilder.where.firstCall, 'cart_id', 1)
-  sinon.assert.calledWith(stubQueryBuilder.where.secondCall, 'product_id', 2)
+    sinon.assert.calledOnce(stubQuery)
+    sinon.assert.calledWith(stubQueryBuilder.where.firstCall, 'cart_id', 1)
+    sinon.assert.calledWith(stubQueryBuilder.where.secondCall, 'product_id', 2)
 
-  sinon.restore()
+    sinon.restore()
+    sinon.reset()
+  })
+
+  test('deleting cart product', async () => {
+    const stubCartProduct = sinon.createStubInstance(CartProduct)
+    stubCartProduct.amount = 1
+
+    const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+    stubQueryBuilder.where.returnsThis()
+    stubQueryBuilder.first.resolves(stubCartProduct)
+
+    const stubQuery = sinon.stub(CartProduct, 'query')
+    stubQuery.returns(stubQueryBuilder)
+
+    const cartsRepository = await app.container.make(CartsRepository)
+    await cartsRepository.removeProductFromCart(1, 2)
+
+    sinon.assert.calledOnce(stubQuery)
+    sinon.assert.calledWith(stubQueryBuilder.where.firstCall, 'cart_id', 1)
+    sinon.assert.calledWith(stubQueryBuilder.where.secondCall, 'product_id', 2)
+    sinon.assert.calledWith(stubCartProduct.delete)
+
+    sinon.restore()
+    sinon.reset()
+  })
+
+  test('decreasing amount of cart product', async ({ assert }) => {
+    const stubCartProduct = sinon.createStubInstance(CartProduct)
+    stubCartProduct.amount = 2
+
+    const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+    stubQueryBuilder.where.returnsThis()
+    stubQueryBuilder.first.resolves(stubCartProduct)
+
+    const stubQuery = sinon.stub(CartProduct, 'query')
+    stubQuery.returns(stubQueryBuilder)
+
+    const cartsRepository = await app.container.make(CartsRepository)
+    await cartsRepository.removeProductFromCart(1, 2)
+
+    assert.equal(stubCartProduct.amount, 1)
+    sinon.assert.calledOnce(stubQuery)
+    sinon.assert.calledWith(stubQueryBuilder.where.firstCall, 'cart_id', 1)
+    sinon.assert.calledWith(stubQueryBuilder.where.secondCall, 'product_id', 2)
+    sinon.assert.calledWith(stubCartProduct.save)
+
+    sinon.restore()
+    sinon.reset()
+  })
 })
