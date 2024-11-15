@@ -23,5 +23,7 @@ router.get('/docs', async () => {
 router.post('/auth/sign_in', '#controllers/auth_controller.signIn')
 router.post('/auth/sign_up', '#controllers/auth_controller.signUp')
 
+router.post('/cart', '#controllers/carts_controller.create')
+
 router.get('/products', '#controllers/products_controller.index')
 router.post('/products', '#controllers/products_controller.create').use(middleware.auth())
