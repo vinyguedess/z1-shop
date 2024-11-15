@@ -46,21 +46,61 @@ test('getByDeviceId', async ({ assert }) => {
   sinon.restore()
 })
 
-test('addProductToCart', async ({ assert }) => {
-  const stubHasManyRelation = sinon.createStubInstance(HasManyQueryClient)
-  stubHasManyRelation.create.resolves(new CartProduct())
+test.group('addProductToCart', () => {
+  test('creating cart product', async ({ assert }) => {
+    const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+    stubQueryBuilder.where.returnsThis()
+    stubQueryBuilder.first.resolves(null)
 
-  const stubCart = sinon.createStubInstance(Cart)
-  stubCart.related.returns(stubHasManyRelation as never)
+    const stubHasManyRelation = sinon.createStubInstance(HasManyQueryClient)
+    stubHasManyRelation.query.returns(stubQueryBuilder)
+    stubHasManyRelation.create.resolves(new CartProduct())
 
-  const cartsRepository = await app.container.make(CartsRepository)
-  const response = await cartsRepository.addProductToCart(stubCart, 1)
+    const stubCart = sinon.createStubInstance(Cart)
+    stubCart.related.returns(stubHasManyRelation as never)
 
-  assert.instanceOf(response, CartProduct)
-  sinon.assert.calledWith(stubCart.related, 'products')
-  sinon.assert.calledWith(stubHasManyRelation.create, { productId: 1 })
+    const cartsRepository = await app.container.make(CartsRepository)
+    const response = await cartsRepository.addProductToCart(stubCart, 1)
 
-  sinon.restore()
+    assert.instanceOf(response, CartProduct)
+    sinon.assert.calledWith(stubCart.related, 'products')
+    sinon.assert.calledWith(stubHasManyRelation.query)
+    sinon.assert.calledWith(stubQueryBuilder.where, 'product_id', 1)
+    sinon.assert.calledWith(stubQueryBuilder.first)
+    sinon.assert.calledWith(stubHasManyRelation.create, { productId: 1, amount: 1 })
+
+    sinon.restore()
+  })
+
+  test('adding more in the amount', async ({ assert }) => {
+    const stubCartProduct = sinon.createStubInstance(CartProduct)
+    stubCartProduct.amount = 1
+
+    const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+    stubQueryBuilder.where.returnsThis()
+    stubQueryBuilder.first.resolves(stubCartProduct)
+
+    const stubHasManyRelation = sinon.createStubInstance(HasManyQueryClient)
+    stubHasManyRelation.query.returns(stubQueryBuilder)
+    stubHasManyRelation.create.resolves(new CartProduct())
+
+    const stubCart = sinon.createStubInstance(Cart)
+    stubCart.related.returns(stubHasManyRelation as never)
+
+    const cartsRepository = await app.container.make(CartsRepository)
+    const response = await cartsRepository.addProductToCart(stubCart, 1)
+
+    assert.instanceOf(response, CartProduct)
+    assert.equal(stubCartProduct.amount, 2)
+    sinon.assert.calledWith(stubCart.related, 'products')
+    sinon.assert.calledWith(stubHasManyRelation.query)
+    sinon.assert.calledWith(stubQueryBuilder.where, 'product_id', 1)
+    sinon.assert.calledWith(stubQueryBuilder.first)
+    sinon.assert.calledWith(stubCartProduct.save)
+    sinon.assert.notCalled(stubHasManyRelation.create)
+
+    sinon.restore()
+  })
 })
 
 test('removeProductFromCart', async () => {

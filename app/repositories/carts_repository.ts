@@ -16,7 +16,16 @@ export default class CartsRepository {
   }
 
   async addProductToCart(cart: Cart, productId: number): Promise<CartProduct> {
-    return cart.related('products').create({ productId })
+    const relatedProducts = cart.related('products')
+
+    const cartProduct = await relatedProducts.query().where('product_id', productId).first()
+    if (cartProduct instanceof CartProduct) {
+      cartProduct.amount += 1
+      await cartProduct.save()
+      return cartProduct as CartProduct
+    }
+
+    return relatedProducts.create({ productId: productId, amount: 1 })
   }
 
   async removeProductFromCart(cartId: number, productId: number): Promise<void> {
