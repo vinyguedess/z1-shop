@@ -44,3 +44,37 @@ test.group('getByDeviceId', () => {
     sinon.restore()
   })
 })
+
+test.group('addProductToCart', () => {
+  test('ok', async () => {
+    const cart = new Cart()
+
+    const stubGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
+    stubGetByDeviceId.resolves(cart)
+
+    const stubAddProductToCart = sinon.stub(CartsRepository.prototype, 'addProductToCart')
+
+    const cartsService = await app.container.make(CartsService)
+    await cartsService.addProductToCart('device-id-123', 1)
+
+    sinon.assert.calledWith(stubGetByDeviceId, 'device-id-123')
+    sinon.assert.calledWith(stubAddProductToCart, cart, 1)
+
+    sinon.restore()
+  })
+
+  test('error if cart not found', async ({ assert }) => {
+    const stubGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
+    stubGetByDeviceId.resolves(null)
+
+    const stubAddProductToCart = sinon.stub(CartsRepository.prototype, 'addProductToCart')
+
+    const cartsService = await app.container.make(CartsService)
+
+    assert.rejects(() => cartsService.addProductToCart('device-id-123', 1))
+    sinon.assert.calledWith(stubGetByDeviceId, 'device-id-123')
+    sinon.assert.notCalled(stubAddProductToCart)
+
+    sinon.restore()
+  })
+})
