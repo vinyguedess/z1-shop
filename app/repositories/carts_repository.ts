@@ -12,7 +12,10 @@ export default class CartsRepository {
   }
 
   async getByDeviceId(deviceId: string): Promise<Cart | null> {
-    return Cart.findBy('device_id', deviceId)
+    return Cart.query()
+      .where('device_id', deviceId)
+      .preload('products', (q) => q.preload('product'))
+      .first()
   }
 
   async addProductToCart(cart: Cart, productId: number): Promise<CartProduct> {

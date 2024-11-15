@@ -34,14 +34,22 @@ test('update', async ({ assert }) => {
 })
 
 test('getByDeviceId', async ({ assert }) => {
-  const stubFindBy = sinon.stub(Cart, 'findBy')
-  stubFindBy.resolves(new Cart())
+  const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+  stubQueryBuilder.where.returnsThis()
+  stubQueryBuilder.preload.returnsThis()
+  stubQueryBuilder.first.resolves(new Cart())
+
+  const stubQuery = sinon.stub(Cart, 'query')
+  stubQuery.returns(stubQueryBuilder)
 
   const cartsRepository = await app.container.make(CartsRepository)
   const response = await cartsRepository.getByDeviceId('device-id-123')
 
   assert.instanceOf(response, Cart)
-  sinon.assert.calledWith(stubFindBy, 'device_id', 'device-id-123')
+  sinon.assert.calledWith(stubQuery)
+  sinon.assert.calledWith(stubQueryBuilder.where, 'device_id', 'device-id-123')
+  sinon.assert.calledWith(stubQueryBuilder.preload, 'products')
+  sinon.assert.calledWith(stubQueryBuilder.first)
 
   sinon.restore()
 })
