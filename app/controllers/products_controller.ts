@@ -27,9 +27,11 @@ export default class ProductsController {
   /**
    * @create
    * @tag Product
-   * @description Create new product into stock
-   * @responseBody 201
-   * @responseHeader 201 - ETag - ID of newly created product
+   * @summary Create new product into stock
+   * @description Create new product in case user signed in has permission to do so.
+   * @responseHeader 201 - ETag - ID of newly created
+   * @responseBody 403 - {"code": "YOU_DONT_HAVE_PERMISSION"} - You don't have permission to create a product
+   * @responseHeader 403 - Content
    */
   async create(ctx: HttpContext): Promise<void> {
     const user = ctx.auth.use('jwt').getUserOrFail()
