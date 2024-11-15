@@ -10,6 +10,7 @@ export default class extends BaseSeeder {
         last_name: 'Admin',
         email: 'admin@z1shop.com',
         password: await hash.make('adminp4ssw0rd'),
+        isAdmin: true,
       },
     ])
   }
