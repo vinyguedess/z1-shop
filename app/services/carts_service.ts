@@ -24,4 +24,11 @@ export default class CartsService {
 
     this.cartsRepository.addProductToCart(cart, productId)
   }
+
+  async removeProductFromCart(cartDeviceId: string, productId: number): Promise<void> {
+    const cart = await this.cartsRepository.getByDeviceId(cartDeviceId)
+    if (!(cart instanceof Cart)) throw new CartNotFound(cartDeviceId)
+
+    this.cartsRepository.removeProductFromCart(cart.id, productId)
+  }
 }
