@@ -1,3 +1,4 @@
+import { CartNotFound } from '#exceptions/carts_exceptions'
 import CartsService from '#services/carts_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -23,6 +24,33 @@ export default class CartsController {
     ctx.response.status(201)
     ctx.response.header('ETag', cart.id)
     ctx.response.header('Location', `/carts/${cart.deviceId}`)
+  }
+
+  /**
+   * @getCart
+   * @tag Cart
+   * @description Get cart by device id
+   * @responseBody 200 - <Cart>
+   * @responseBody 404 - {"code": "CART_NOT_FOUND", "message": "Cart not found"}
+   */
+  async getCart(ctx: HttpContext) {
+    try {
+      return await this.cartsService.getByDeviceId(ctx.params.deviceId)
+    } catch (error) {
+      if (error instanceof CartNotFound)
+        return ctx.response.notFound({
+          code: error.name,
+          message: error.message,
+        })
+
+      console.log({
+        type: 'SYS',
+        level: 'ERROR',
+        message: error.message,
+        stack_trace: error.stack,
+      })
+      return ctx.response.internalServerError({ code: error.name, message: error.message })
+    }
   }
 
   private async getUserIdFromContext(ctx: HttpContext): Promise<number | null> {

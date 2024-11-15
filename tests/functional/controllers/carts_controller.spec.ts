@@ -8,6 +8,7 @@ import User from '#models/user'
 import Cart from '#models/cart'
 import CartsService from '#services/carts_service'
 import CartsController from '#controllers/carts_controller'
+import { CartNotFound } from '#exceptions/carts_exceptions'
 
 test.group('create', () => {
   test('ok with user', async ({ assert }) => {
@@ -80,6 +81,41 @@ test.group('create', () => {
     assert.strictEqual(ctx.response.getHeader('Location'), '/carts/device-id-123')
     sinon.assert.calledWith(stubJwtGuard.authenticate)
     sinon.assert.calledWith(stubCreate, 'device-id-123', null)
+
+    sinon.restore()
+  })
+})
+
+test.group('getCart', () => {
+  test('ok', async ({ assert }) => {
+    const stubCreate = sinon.stub(CartsService.prototype, 'getByDeviceId')
+    stubCreate.resolves(new Cart())
+
+    const ctx = await testUtils.createHttpContext()
+    ctx.params.deviceId = 'device-id-123'
+
+    const cartsController = await app.container.make(CartsController)
+    const response = await cartsController.getCart(ctx)
+
+    assert.instanceOf(response, Cart)
+    sinon.assert.calledWith(stubCreate, 'device-id-123')
+
+    sinon.restore()
+  })
+
+  test('not found', async ({ assert }) => {
+    const stubCreate = sinon.stub(CartsService.prototype, 'getByDeviceId')
+    stubCreate.rejects(new CartNotFound('device-id-123'))
+
+    const ctx = await testUtils.createHttpContext()
+    ctx.params.deviceId = 'device-id-123'
+
+    const cartsController = await app.container.make(CartsController)
+    await cartsController.getCart(ctx)
+
+    assert.strictEqual(ctx.response.getStatus(), 404)
+    assert.deepEqual(ctx.response.getBody(), { code: 'CART_NOT_FOUND', message: 'device-id-123' })
+    sinon.assert.calledWith(stubCreate, 'device-id-123')
 
     sinon.restore()
   })
