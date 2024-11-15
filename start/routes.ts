@@ -10,6 +10,7 @@
 import AutoSwagger from 'adonis-autoswagger'
 import swagger from '#config/swagger'
 import router from '@adonisjs/core/services/router'
+import { middleware } from './kernel.js'
 
 router.get('/swagger', async () => {
   return AutoSwagger.default.docs(router.toJSON(), swagger)
@@ -23,3 +24,4 @@ router.post('/auth/sign_in', '#controllers/auth_controller.signIn')
 router.post('/auth/sign_up', '#controllers/auth_controller.signUp')
 
 router.get('/products', '#controllers/products_controller.index')
+router.post('/products', '#controllers/products_controller.create').use(middleware.auth())
