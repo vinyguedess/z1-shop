@@ -1,8 +1,6 @@
-import type { HttpContext } from '@adonisjs/core/http'
-
 import ProductsService from '#services/products_service'
+import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { createProduct } from '#abilities/main'
 
 @inject()
 export default class ProductsController {
