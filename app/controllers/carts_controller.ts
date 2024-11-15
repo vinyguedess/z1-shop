@@ -86,6 +86,38 @@ export default class CartsController {
     }
   }
 
+  /**
+   * @removeProduct
+   * @tag Cart
+   * @description Decrease amount of product in cart or remove it
+   * @paramPath deviceId - Device id associated with the cart - @type(string) @required
+   * @requestBody <CartProduct>.only(product_id)
+   * @responseBody 204 - -
+   * @responseBody 404 - {"code": "CART_NOT_FOUND", "message": "Cart not found"}
+   */
+  async removeProduct(ctx: HttpContext) {
+    const payload = ctx.request.only(['product_id'])
+    try {
+      await this.cartsService.removeProductFromCart(ctx.params.deviceId, payload['product_id'])
+
+      ctx.response.status(204)
+    } catch (error) {
+      if (error instanceof CartNotFound)
+        return ctx.response.notFound({
+          code: error.name,
+          message: error.message,
+        })
+
+      console.log({
+        type: 'SYS',
+        level: 'ERROR',
+        message: error.message,
+        stack_trace: error.stack,
+      })
+      return ctx.response.internalServerError({ code: error.name, message: error.message })
+    }
+  }
+
   private async getUserIdFromContext(ctx: HttpContext): Promise<number | null> {
     try {
       const user = await ctx.auth.use('jwt').authenticate()

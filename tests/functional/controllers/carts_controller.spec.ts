@@ -157,3 +157,40 @@ test.group('addProduct', () => {
     sinon.restore()
   })
 })
+
+test.group('removeProduct', () => {
+  test('ok', async ({ assert }) => {
+    const stubRemoveProductToCart = sinon.stub(CartsService.prototype, 'removeProductFromCart')
+    stubRemoveProductToCart.resolves()
+
+    const ctx = await testUtils.createHttpContext()
+    ctx.params.deviceId = 'device-id-123'
+    ctx.request.updateBody({ product_id: 321 })
+
+    const cartsController = await app.container.make(CartsController)
+    await cartsController.removeProduct(ctx)
+
+    assert.strictEqual(ctx.response.getStatus(), 204)
+    sinon.assert.calledWith(stubRemoveProductToCart, 'device-id-123', 321)
+
+    sinon.restore()
+  })
+
+  test('not found', async ({ assert }) => {
+    const stubRemoveProductToCart = sinon.stub(CartsService.prototype, 'removeProductFromCart')
+    stubRemoveProductToCart.rejects(new CartNotFound('device-id-123'))
+
+    const ctx = await testUtils.createHttpContext()
+    ctx.params.deviceId = 'device-id-123'
+    ctx.request.updateBody({ product_id: 321 })
+
+    const cartsController = await app.container.make(CartsController)
+    await cartsController.removeProduct(ctx)
+
+    assert.strictEqual(ctx.response.getStatus(), 404)
+    assert.deepEqual(ctx.response.getBody(), { code: 'CART_NOT_FOUND', message: 'device-id-123' })
+    sinon.assert.calledWith(stubRemoveProductToCart, 'device-id-123', 321)
+
+    sinon.restore()
+  })
+})
