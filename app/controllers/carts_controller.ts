@@ -30,12 +30,45 @@ export default class CartsController {
    * @getCart
    * @tag Cart
    * @description Get cart by device id
+   * @paramPath deviceId - Device id associated with the cart - @type(string) @required
    * @responseBody 200 - <Cart>
    * @responseBody 404 - {"code": "CART_NOT_FOUND", "message": "Cart not found"}
    */
   async getCart(ctx: HttpContext) {
     try {
       return await this.cartsService.getByDeviceId(ctx.params.deviceId)
+    } catch (error) {
+      if (error instanceof CartNotFound)
+        return ctx.response.notFound({
+          code: error.name,
+          message: error.message,
+        })
+
+      console.log({
+        type: 'SYS',
+        level: 'ERROR',
+        message: error.message,
+        stack_trace: error.stack,
+      })
+      return ctx.response.internalServerError({ code: error.name, message: error.message })
+    }
+  }
+
+  /**
+   * @addProduct
+   * @tag Cart
+   * @description Add product to cart
+   * @paramPath deviceId - Device id associated with the cart - @type(string) @required
+   * @requestBody <CartProduct>.only(product_id)
+   * @responseBody 204 - -
+   * @responseBody 404 - {"code": "CART_NOT_FOUND", "message": "Cart not found"}
+   */
+  async addProduct(ctx: HttpContext) {
+    const payload = ctx.request.only(['product_id'])
+    try {
+      await this.cartsService.addProductToCart(ctx.params.deviceId, payload['product_id'])
+
+      ctx.response.status(204)
     } catch (error) {
       if (error instanceof CartNotFound)
         return ctx.response.notFound({
