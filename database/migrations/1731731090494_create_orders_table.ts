@@ -16,12 +16,14 @@ export default class extends BaseSchema {
         table.integer('order_id').unsigned().notNullable().references('orders.id')
         table.integer('product_id').unsigned().notNullable().references('products.id')
         table.decimal('price', 10, 2).notNullable()
+        table.integer('amount').notNullable()
         table.timestamp('created_at')
         table.timestamp('updated_at')
       })
   }
 
   async down() {
+    this.schema.dropTable('order_items')
     this.schema.dropTable(this.tableName)
   }
 }
