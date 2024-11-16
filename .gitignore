@@ -27,3 +27,5 @@ yarn-error.log
 # App files and folders
 coverage
 data
+swagger.json
+swagger.yml
