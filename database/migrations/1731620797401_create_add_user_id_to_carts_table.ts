@@ -10,6 +10,7 @@ export default class extends BaseSchema {
 
   async down() {
     this.schema.alterTable('carts', (table) => {
+      table.dropForeign(['user_id'])
       table.dropColumn('user_id')
       table.string('device_id', 100).nullable().alter()
     })
