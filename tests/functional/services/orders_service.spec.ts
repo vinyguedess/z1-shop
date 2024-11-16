@@ -2,6 +2,7 @@ import Cart from '#models/cart'
 import CartProduct from '#models/cart_product'
 import Order from '#models/order'
 import Product from '#models/product'
+import User from '#models/user'
 import CartsRepository from '#repositories/carts_repository'
 import OrdersRepository from '#repositories/orders_repository'
 import ProductsRepository from '#repositories/products_repository'
@@ -122,4 +123,17 @@ test.group('create', () => {
 
     sinon.restore()
   })
+})
+
+test('getListByUser', async ({ assert }) => {
+  const user = new User().fill({ id: 1 })
+
+  const stubGetListByUserId = sinon.stub(OrdersRepository.prototype, 'getListByUserId')
+  stubGetListByUserId.resolves([[], 0])
+
+  const ordersService = await app.container.make(OrdersService)
+  const response = await ordersService.getListByUser(user, 10, 1)
+
+  assert.deepEqual(response, [[], 0])
+  sinon.assert.calledWith(stubGetListByUserId, 1, 10, 0)
 })

@@ -1,6 +1,7 @@
 import { CartNotFound } from '#exceptions/carts_exceptions'
 import { NotEnoughItemsInStock } from '#exceptions/orders_exceptions'
 import Order from '#models/order'
+import User from '#models/user'
 import CartsRepository from '#repositories/carts_repository'
 import OrdersRepository from '#repositories/orders_repository'
 import ProductsRepository from '#repositories/products_repository'
@@ -61,5 +62,10 @@ export default class OrdersService {
       await trx.rollback()
       throw error
     }
+  }
+
+  async getListByUser(user: User, limit: number, page: number): Promise<[Order[], number]> {
+    const offset = (page - 1) * limit
+    return this.ordersRepository.getListByUserId(user.id, limit, offset)
   }
 }
