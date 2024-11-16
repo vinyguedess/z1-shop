@@ -4,6 +4,7 @@ import { test } from '@japa/runner'
 import sinon, { SinonStubbedInstance } from 'sinon'
 import ProductsRepository from '#repositories/products_repository'
 import app from '@adonisjs/core/services/app'
+import db from '@adonisjs/lucid/services/db'
 
 test('create', async ({ assert }) => {
   const stubCreate = sinon.stub(Product, 'create')
@@ -21,6 +22,29 @@ test('create', async ({ assert }) => {
       name: 'product-name',
     })
   )
+
+  sinon.restore()
+})
+
+test('update', async ({ assert }) => {
+  const trx = await db.transaction()
+  await trx.rollback()
+
+  const stubTrx = sinon.stub(trx)
+
+  const stubQueryBuilder = sinon.createStubInstance(ModelQueryBuilder)
+  stubQueryBuilder.where.returnsThis()
+  stubQueryBuilder.update.resolves()
+
+  const stubQuery = sinon.stub(Product, 'query')
+  stubQuery.returns(stubQueryBuilder)
+
+  const productsRepository = await app.container.make(ProductsRepository)
+  await productsRepository.update(stubTrx, 1, { amount: 2 })
+
+  sinon.assert.calledWith(stubQuery, { client: stubTrx })
+  sinon.assert.calledWith(stubQueryBuilder.where, 'id', 1)
+  sinon.assert.calledWith(stubQueryBuilder.update, { amount: 2 })
 
   sinon.restore()
 })
