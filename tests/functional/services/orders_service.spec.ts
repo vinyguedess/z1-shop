@@ -27,9 +27,11 @@ test.group('create', () => {
     stubCartProduct.productId = 321
     stubCartProduct.amount = 1
     stubCartProduct.product = product
+    stubCartProduct.useTransaction.returnsThis()
 
     const stubCart = sinon.createStubInstance(Cart)
     stubCart.products = [stubCartProduct]
+    stubCart.useTransaction.returnsThis()
 
     const stubCartGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
     stubCartGetByDeviceId.resolves(stubCart)
