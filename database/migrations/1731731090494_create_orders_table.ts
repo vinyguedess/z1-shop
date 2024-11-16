@@ -6,12 +6,14 @@ export default class extends BaseSchema {
   async up() {
     this.schema
       .createTable(this.tableName, (table) => {
+        table.engine('InnoDB')
         table.increments('id')
         table.integer('user_id').unsigned().notNullable().references('users.id')
         table.timestamp('created_at')
         table.timestamp('updated_at')
       })
       .createTable('order_items', (table) => {
+        table.engine('InnoDB')
         table.increments('id')
         table.integer('order_id').unsigned().notNullable().references('orders.id')
         table.integer('product_id').unsigned().notNullable().references('products.id')

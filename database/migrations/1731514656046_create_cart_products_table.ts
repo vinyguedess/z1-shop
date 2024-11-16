@@ -5,6 +5,7 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
+      table.engine('InnoDB')
       table.increments('id')
       table.integer('cart_id').unsigned().references('carts.id').notNullable()
       table.integer('product_id').unsigned().references('products.id').notNullable()
