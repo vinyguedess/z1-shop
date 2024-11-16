@@ -91,6 +91,8 @@
       "text"
     ],
     "exclude": [
+      "ace.js",
+      "adonisrc.ts",
       "bin",
       "console",
       "database",
