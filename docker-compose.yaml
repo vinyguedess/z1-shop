@@ -13,3 +13,12 @@ services:
       - 3306
     volumes:
       - "./data/db:/var/lib/mysql"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:3333"
+    depends_on:
+      - db
