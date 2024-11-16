@@ -31,8 +31,8 @@ export default class OrdersService {
           throw new NotEnoughItemsInStock('Not enough items in stock', {
             cause: {
               productId: cartProduct.productId,
-              amount: cartProduct.amount,
-              stock: cartProduct.product.amount,
+              selected_amount: cartProduct.amount,
+              in_stock_amount: cartProduct.product.amount,
             },
           })
 

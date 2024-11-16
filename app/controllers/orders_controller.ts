@@ -1,4 +1,5 @@
 import { CartNotFound } from '#exceptions/carts_exceptions'
+import { NotEnoughItemsInStock } from '#exceptions/orders_exceptions'
 import OrdersService from '#services/orders_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -32,6 +33,13 @@ export default class OrdersController {
         return ctx.response.badRequest({
           code: error.name,
           message: error.message,
+        })
+
+      if (error instanceof NotEnoughItemsInStock)
+        return ctx.response.badRequest({
+          code: error.name,
+          message: error.message,
+          details: [error.cause],
         })
 
       console.log({
