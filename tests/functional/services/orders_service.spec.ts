@@ -20,10 +20,7 @@ test.group('create', () => {
     const stubDBTrx = sinon.stub(db, 'transaction')
     stubDBTrx.resolves(stubTrx)
 
-    const product = new Product()
-    product.id = 321
-    product.amount = 100
-    product.price = 10.99
+    const product = new Product().fill({ id: 321, amount: 100, price: 10.99 })
 
     const stubCartProduct = sinon.createStubInstance(CartProduct)
     stubCartProduct.productId = 321
@@ -36,8 +33,7 @@ test.group('create', () => {
     const stubCartGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
     stubCartGetByDeviceId.resolves(stubCart)
 
-    const order = new Order()
-    order.id = 99
+    const order = new Order().fill({ id: 99 })
 
     const stubOrderCreate = sinon.stub(OrdersRepository.prototype, 'create')
     stubOrderCreate.resolves(order)
@@ -65,6 +61,64 @@ test.group('create', () => {
     sinon.assert.calledWith(stubCartProduct.delete)
     sinon.assert.calledWith(stubCart.delete)
     sinon.assert.calledWith(stubTrx.commit)
+
+    sinon.restore()
+  })
+
+  test('error if cart not found', async ({ assert }) => {
+    const txn = await db.transaction()
+    await txn.rollback()
+    const stubTrx = sinon.stub(txn)
+
+    const stubDBTrx = sinon.stub(db, 'transaction')
+    stubDBTrx.resolves(stubTrx)
+
+    const stubCartGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
+    stubCartGetByDeviceId.resolves(null)
+
+    const ordersService = await app.container.make(OrdersService)
+
+    await assert.rejects(() => ordersService.create(1, 'device-id-123'))
+    sinon.assert.calledWith(stubDBTrx)
+    sinon.assert.calledWith(stubCartGetByDeviceId, 'device-id-123')
+    sinon.assert.calledWith(stubTrx.rollback)
+
+    sinon.restore()
+  })
+
+  test('error if amount of products in stock is not enough', async ({ assert }) => {
+    const txn = await db.transaction()
+    await txn.rollback()
+    const stubTrx = sinon.stub(txn)
+
+    const stubDBTrx = sinon.stub(db, 'transaction')
+    stubDBTrx.resolves(stubTrx)
+
+    const product = new Product().fill({ id: 321, amount: 5, price: 10.99 })
+
+    const stubCartProduct = sinon.createStubInstance(CartProduct)
+    stubCartProduct.productId = 321
+    stubCartProduct.amount = 10
+    stubCartProduct.product = product
+
+    const stubCart = sinon.createStubInstance(Cart)
+    stubCart.products = [stubCartProduct]
+
+    const stubCartGetByDeviceId = sinon.stub(CartsRepository.prototype, 'getByDeviceId')
+    stubCartGetByDeviceId.resolves(stubCart)
+
+    const order = new Order().fill({ id: 99 })
+
+    const stubOrderCreate = sinon.stub(OrdersRepository.prototype, 'create')
+    stubOrderCreate.resolves(order)
+
+    const ordersService = await app.container.make(OrdersService)
+
+    await assert.rejects(() => ordersService.create(1, 'device-id-123'))
+    sinon.assert.calledWith(stubDBTrx)
+    sinon.assert.calledWith(stubCartGetByDeviceId, 'device-id-123')
+    sinon.assert.calledWith(stubOrderCreate, stubTrx, { userId: 1 })
+    sinon.assert.calledWith(stubTrx.rollback)
 
     sinon.restore()
   })
