@@ -19,4 +19,4 @@ cicd:
 	echo "Step #5 - Run service"
 	docker-compose up -d
 
-	echo "Running on http://localhost:localhost:8001"
+	echo "Running on http://localhost:8001"
