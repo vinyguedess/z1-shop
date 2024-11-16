@@ -107,3 +107,33 @@ test.group('create', () => {
     sinon.restore()
   })
 })
+
+test('getList', async ({ assert }) => {
+  const stubGetListByUser = sinon.stub(OrdersService.prototype, 'getListByUser')
+  stubGetListByUser.resolves([[], 0])
+
+  const user = new User().fill({ id: 1000 })
+
+  const stubJwtGuard = sinon.createStubInstance(JwtGuard)
+  stubJwtGuard.getUserOrFail.returns(user)
+
+  const authClient = new AuthenticatorClient({
+    default: 'jwt',
+    guards: {
+      jwt: () => stubJwtGuard,
+    },
+  })
+
+  const ctx = await testUtils.createHttpContext()
+  ctx.auth = authClient
+
+  const ordersController = await app.container.make(OrdersController)
+  await ordersController.getList(ctx)
+
+  assert.strictEqual(ctx.response.getStatus(), 200)
+  assert.strictEqual(ctx.response.getHeader('X-Total-Count'), '0')
+  sinon.assert.calledWith(stubJwtGuard.getUserOrFail)
+  sinon.assert.calledWith(stubGetListByUser, user, 10, 1)
+
+  sinon.restore()
+})

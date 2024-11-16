@@ -29,6 +29,7 @@ router.patch('/carts/:deviceId/add_product', '#controllers/carts_controller.addP
 router.patch('/carts/:deviceId/remove_product', '#controllers/carts_controller.removeProduct')
 
 router.post('/orders', '#controllers/orders_controller.create').use(middleware.auth())
+router.get('/orders', '#controllers/orders_controller.getList').use(middleware.auth())
 
 router.get('/products', '#controllers/products_controller.index')
 router.post('/products', '#controllers/products_controller.create').use(middleware.auth())

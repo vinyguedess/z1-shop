@@ -51,4 +51,26 @@ export default class OrdersController {
       return ctx.response.internalServerError({ code: error.name, message: error.message })
     }
   }
+
+  /**
+   * @getList
+   * @tag Orders
+   * @description Get list of orders from authenticated user
+   * @paramQuery limit - Limit number of orders to be returned - @type(number)
+   * @paramQuery page - Page number of orders to be returned - @type(number)
+   * @responseBody 200 - <Product[]>
+   * @responseHeader 200 - X-Total-Count - Total number of orders
+   */
+  async getList(ctx: HttpContext) {
+    const user = ctx.auth.use('jwt').getUserOrFail()
+
+    const [results, totalResults] = await this.ordersService.getListByUser(
+      user,
+      ctx.request.qs().limit || 10,
+      ctx.request.qs().page || 1
+    )
+
+    ctx.response.header('X-Total-Count', totalResults)
+    return results
+  }
 }
