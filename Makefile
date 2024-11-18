@@ -16,7 +16,10 @@ cicd:
 	echo "Step #4 - Build image"
 	docker-compose build
 
-	echo "Step #5 - Run service"
+	echo "Step #5 - Run database migrations"
+	node ace migration:run
+
+	echo "Step #6 - Run service"
 	docker-compose up -d
 
 	echo "Running on http://localhost:8001"

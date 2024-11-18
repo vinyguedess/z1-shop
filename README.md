@@ -11,7 +11,7 @@ Command for running tests is `docker-compose up -d db` and `node ace test`. Due 
 Coverage results can be checked at `coverage/index.html`.
 
 ## Running service
-Before running service it's needed to build code with `node ace build` and build swagger documentation with `node ace docs:generate`.
+Before running service it's needed to build code with `node ace build`, build swagger documentation with `node ace docs:generate` and run database migrations with `node ace migration:run`.
 Command for running service is `docker-compose up -d` which will lift database and api container.
 Container runs at port 8001 and Swagger documentation can be checked in `http://localhost:8001/docs`.
 
